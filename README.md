@@ -2,7 +2,7 @@
 
 Go wrapper for [libmceliece](https://libmceliece.cr.yp.to/) which implements Classic McEliece, a post-quantum key encapsulation mechanism (KEM) thats been around since 1978 and is now a NIST standard.
 
-- prebuilt libraries for amd64 included, use ./update_libs.sh (all the bash files are for debian compatible systems) to recompile them
+- prebuilt libraries for `amd64` and `arm64` included; run `./update_libs.sh` to refresh them from Debian packages (requires `curl` and `dpkg-deb`)
 
 ## Usage
 
@@ -75,12 +75,23 @@ The `f` suffix uses a faster key generation algorithm. The `pc` suffix enables p
 
 The shared secret is always 32 bytes regardless of variant.
 
-## Rebuilding the C libraries
+## Updating the C libraries
 
-If you want to recompile from source (or target a different architecture), run:
+`update_libs.sh` downloads the latest prebuilt `.deb` packages for `libmceliece-dev` and `librandombytes-dev` from Debian forky and copies the static libraries and headers into `lib/`:
 
 ```
 ./update_libs.sh
+```
+
+Requirements: `curl`, `dpkg-deb` (available on any Debian/Ubuntu system).
+
+After running, `lib/` will contain:
+
+```
+lib/
+  amd64/  libmceliece.a  librandombytes.a  librandombytes-kernel.a
+  arm64/  libmceliece.a  librandombytes.a  librandombytes-kernel.a
+  include/ mceliece.h
 ```
 
 ## Benchmark results

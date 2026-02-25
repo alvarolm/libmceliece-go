@@ -1,102 +1,38 @@
-#!/bin/bash
+#!/usr/bin/env bash
+set -euo pipefail
 
-# Exit immediately if a command exits with a non-zero status
-# -e: exit on error
-# -u: treat unset variables as an error
-set -eu
+MIRROR="http://ftp.debian.org/debian"
+mkdir -p libs_src lib/amd64 lib/arm64 lib/include
 
-mkdir -p ./libs_src
+declare -A POOL=(
+    [libmceliece-dev]="pool/main/libm/libmceliece"
+    [librandombytes-dev]="pool/main/libr/librandombytes"
+)
 
-cd ./libs_src
+HEADERS_DONE=0
+for PKG in libmceliece-dev librandombytes-dev; do
+    POOL_PATH="${POOL[$PKG]}"
+    for ARCH in amd64 arm64; do
+        FILENAME=$(curl -s "$MIRROR/$POOL_PATH/" \
+            | grep -oP "href=\"\K[^\"]*_${ARCH}\.deb" \
+            | grep "$PKG" | sort -V | tail -1)
+        [ -z "$FILENAME" ] && { echo "Could not find $PKG for $ARCH"; exit 1; }
 
-add_arm64_compiler_config() {
-  local dir="$1"
-  echo "aarch64-linux-gnu-gcc -Wall -fPIC -fwrapv -O2" > "$dir/compilers/arm64"
-}
+        DEB="libs_src/${FILENAME}"
+        echo "Downloading $FILENAME..."
+        curl -fL -o "$DEB" "$MIRROR/$POOL_PATH/$FILENAME"
 
-# ensure global dependencies are installed
-# for debian:
-sudo apt install -y valgrind python3-capstone gcc-aarch64-linux-gnu
+        EXTRACT="libs_src/extract_${PKG}_${ARCH}"
+        rm -rf "$EXTRACT" && mkdir -p "$EXTRACT"
+        dpkg-deb --extract "$DEB" "$EXTRACT"
 
+        find "$EXTRACT" -name '*.a' -exec cp {} "lib/$ARCH/" \;
 
-# dependency:
-# librandombytes
-# https://randombytes.cr.yp.to/
-wget -m https://randombytes.cr.yp.to/librandombytes-latest-version.txt
-version=$(cat randombytes.cr.yp.to/librandombytes-latest-version.txt)
-wget -m https://randombytes.cr.yp.to/librandombytes-$version.tar.gz
-tar -xzf randombytes.cr.yp.to/librandombytes-$version.tar.gz
+        if [ "$PKG" = "libmceliece-dev" ] && [ "$HEADERS_DONE" -eq 0 ]; then
+            find "$EXTRACT" -name '*.h' -exec cp {} lib/include/ \;
+            HEADERS_DONE=1
+        fi
+    done
+done
 
-# dependency:
-# libcpucycles
-# https://cpucycles.cr.yp.to/
-wget -m https://cpucycles.cr.yp.to/libcpucycles-latest-version.txt
-version=$(cat cpucycles.cr.yp.to/libcpucycles-latest-version.txt)
-wget -m https://cpucycles.cr.yp.to/libcpucycles-$version.tar.gz
-tar -xzf cpucycles.cr.yp.to/libcpucycles-$version.tar.gz
-
-# library
-# libmceliece
-# https://lib.mceliece.org/
-wget -m https://lib.mceliece.org/libmceliece-latest-version.txt
-version=$(cat lib.mceliece.org/libmceliece-latest-version.txt)
-wget -m https://lib.mceliece.org/libmceliece-$version.tar.gz
-tar -xzf lib.mceliece.org/libmceliece-$version.tar.gz
-
-# Find directories dynamically (pick highest version when multiple exist)
-LIBCPUCYCLES_DIR=$(find "$PWD" -maxdepth 1 -type d -name "libcpucycles-*" | sort -V | tail -n1)
-LIBRANDOMBYTES_DIR=$(find "$PWD" -maxdepth 1 -type d -name "librandombytes-*" | sort -V | tail -n1)
-LIBMCELIECE_DIR=$(find "$PWD" -maxdepth 1 -type d -name "libmceliece-*" | sort -V | tail -n1)
-
-# Check if directories were found
-if [[ -z "$LIBCPUCYCLES_DIR" ]]; then
-    echo "Error: libcpucycles directory not found"
-    exit 1
-fi
-
-if [[ -z "$LIBRANDOMBYTES_DIR" ]]; then
-    echo "Error: librandombytes directory not found"
-    exit 1
-fi
-
-if [[ -z "$LIBMCELIECE_DIR" ]]; then
-    echo "Error: libmceliece directory not found"
-    exit 1
-fi
-
-echo "Using directories:"
-echo "  libcpucycles: $LIBCPUCYCLES_DIR"
-echo "  librandombytes: $LIBRANDOMBYTES_DIR"
-echo "  libmceliece: $LIBMCELIECE_DIR"
-
-# compile librandombytes (amd64 + arm64)
-add_arm64_compiler_config "$LIBRANDOMBYTES_DIR"
-cd "$LIBRANDOMBYTES_DIR"
-./configure --prefix=/usr && make -j"$(nproc)"
-./configure --host=arm64 && make -j"$(nproc)"
-cd "$OLDPWD"
-
-# compile libcpucycles (amd64 + arm64)
-add_arm64_compiler_config "$LIBCPUCYCLES_DIR"
-cd "$LIBCPUCYCLES_DIR"
-./configure --prefix=/usr && make -j"$(nproc)"
-./configure --host=arm64 && make -j"$(nproc)"
-cd "$OLDPWD"
-
-# compile libmceliece (amd64 + arm64)
-add_arm64_compiler_config "$LIBMCELIECE_DIR"
-cd "$LIBMCELIECE_DIR"
-
-# amd64 build
-export CPATH="$LIBCPUCYCLES_DIR/build/amd64/package/include:$LIBRANDOMBYTES_DIR/build/amd64/package/include"
-export LIBRARY_PATH="$LIBCPUCYCLES_DIR/build/amd64/package/lib:$LIBRANDOMBYTES_DIR/build/amd64/package/lib"
-export LD_LIBRARY_PATH="$LIBRARY_PATH"
-./configure && make -j"$(nproc)"
-
-# arm64 build
-export CPATH="$LIBCPUCYCLES_DIR/build/arm64/package/include:$LIBRANDOMBYTES_DIR/build/arm64/package/include"
-export LIBRARY_PATH="$LIBCPUCYCLES_DIR/build/arm64/package/lib:$LIBRANDOMBYTES_DIR/build/arm64/package/lib"
-export LD_LIBRARY_PATH="$LIBRARY_PATH"
-./configure --host=arm64 && make -j"$(nproc)"
-
-cd "$OLDPWD"
+echo "Done."
