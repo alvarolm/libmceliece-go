@@ -23,13 +23,21 @@ echo "  randombytes: ${RANDOMBYTES_DIR}"
 MCELIECE_SRC="${MCELIECE_DIR}/build/amd64/package"
 RANDOMBYTES_SRC="${RANDOMBYTES_DIR}/build/amd64/package"
 
+MCELIECE_SRC_ARM64="${MCELIECE_DIR}/build/arm64/package"
+RANDOMBYTES_SRC_ARM64="${RANDOMBYTES_DIR}/build/arm64/package"
+
 DST_INCLUDE="${SCRIPT_DIR}/lib/include"
-DST_LIB="${SCRIPT_DIR}/lib/amd64"
+DST_LIB_AMD64="${SCRIPT_DIR}/lib/amd64"
+DST_LIB_ARM64="${SCRIPT_DIR}/lib/arm64"
 
 echo "Updating libmceliece wrapper libraries..."
 
-cp -v "${MCELIECE_SRC}/include/mceliece.h"          "${DST_INCLUDE}/mceliece.h"
-cp -v "${MCELIECE_SRC}/lib/libmceliece.a"            "${DST_LIB}/libmceliece.a"
-cp -v "${RANDOMBYTES_SRC}/lib/librandombytes-kernel.a" "${DST_LIB}/librandombytes-kernel.a"
+cp -v "${MCELIECE_SRC}/include/mceliece.h"               "${DST_INCLUDE}/mceliece.h"
+cp -v "${MCELIECE_SRC}/lib/libmceliece.a"                "${DST_LIB_AMD64}/libmceliece.a"
+cp -v "${RANDOMBYTES_SRC}/lib/librandombytes-kernel.a"   "${DST_LIB_AMD64}/librandombytes-kernel.a"
+
+mkdir -p "${DST_LIB_ARM64}"
+cp -v "${MCELIECE_SRC_ARM64}/lib/libmceliece.a"              "${DST_LIB_ARM64}/libmceliece.a"
+cp -v "${RANDOMBYTES_SRC_ARM64}/lib/librandombytes-kernel.a" "${DST_LIB_ARM64}/librandombytes-kernel.a"
 
 echo "Done."

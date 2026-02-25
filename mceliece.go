@@ -3,7 +3,8 @@
 package mceliece
 
 // #cgo CFLAGS: -I${SRCDIR}/lib/include
-// #cgo LDFLAGS: -L${SRCDIR}/lib/amd64 -lmceliece -lrandombytes-kernel
+// #cgo amd64 LDFLAGS: -L${SRCDIR}/lib/amd64 -lmceliece -lrandombytes-kernel
+// #cgo arm64 LDFLAGS: -L${SRCDIR}/lib/arm64 -lmceliece -lrandombytes-kernel
 // #include <mceliece.h>
 import "C"
 import (

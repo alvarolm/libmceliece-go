@@ -1,3 +1,3 @@
-module github.com/alvarolm/mceliece
+module github.com/alvarolm/libmceliece-go
 
 go 1.21
