@@ -1,6 +1,8 @@
 # libmceliece-go
 
-Go wrapper for [libmceliece](https://libmceliece.cr.yp.to/), which implements Classic McEliece, a post-quantum key encapsulation mechanism (KEM) thats been around since 1978 and is now a NIST standard. The underlying C library is highly optimized and very fast. Pre-built C libraries for amd64 and arm64 are included, so you don't need to compile anything to get started.
+Go wrapper for [libmceliece](https://libmceliece.cr.yp.to/) which implements Classic McEliece, a post-quantum key encapsulation mechanism (KEM) thats been around since 1978 and is now a NIST standard.
+
+- prebuilt libraries for amd64 and arm64 included, use ./update_libs.sh to recompile them
 
 ## Usage
 
@@ -40,7 +42,7 @@ func main() {
 go get github.com/alvarolm/libmceliece-go
 ```
 
-Requires CGO (`CGO_ENABLED=1`). Pre-built static libraries are bundled for linux/amd64 and linux/arm64
+Requires CGO (`CGO_ENABLED=1`). 
 
 ## Variants
 
@@ -79,4 +81,73 @@ If you want to recompile from source (or target a different architecture), run:
 
 ```
 ./update_libs.sh
+```
+
+## Benchmark results
+
+ ```bash
+ goos: linux
+goarch: amd64
+pkg: github.com/alvarolm/libmceliece-go
+cpu: 11th Gen Intel(R) Core(TM) i5-1135G7 @ 2.40GHz
+BenchmarkGenerateKeyPair/348864-8         	      93	  12176580 ns/op	  268673 B/op	       2 allocs/op
+BenchmarkGenerateKeyPair/348864f-8        	     176	   6806130 ns/op	  268673 B/op	       2 allocs/op
+BenchmarkGenerateKeyPair/348864pc-8       	     100	  12478288 ns/op	  268672 B/op	       2 allocs/op
+BenchmarkGenerateKeyPair/348864pcf-8      	     170	   6769099 ns/op	  268672 B/op	       2 allocs/op
+BenchmarkGenerateKeyPair/460896-8         	      32	  39965043 ns/op	  538624 B/op	       2 allocs/op
+BenchmarkGenerateKeyPair/460896f-8        	      48	  23506215 ns/op	  538626 B/op	       2 allocs/op
+BenchmarkGenerateKeyPair/460896pc-8       	      26	  43822002 ns/op	  538624 B/op	       2 allocs/op
+BenchmarkGenerateKeyPair/460896pcf-8      	      52	  22484362 ns/op	  538625 B/op	       2 allocs/op
+BenchmarkGenerateKeyPair/6688128-8        	      22	  81162917 ns/op	 1062912 B/op	       2 allocs/op
+BenchmarkGenerateKeyPair/6688128f-8       	      22	  51066976 ns/op	 1062920 B/op	       2 allocs/op
+BenchmarkGenerateKeyPair/6688128pc-8      	      13	 109550062 ns/op	 1062912 B/op	       2 allocs/op
+BenchmarkGenerateKeyPair/6688128pcf-8     	      21	  52197947 ns/op	 1062912 B/op	       2 allocs/op
+BenchmarkGenerateKeyPair/6960119-8        	      28	  72089851 ns/op	 1062915 B/op	       2 allocs/op
+BenchmarkGenerateKeyPair/6960119f-8       	      28	  40732858 ns/op	 1062915 B/op	       2 allocs/op
+BenchmarkGenerateKeyPair/6960119pc-8      	      16	  90241067 ns/op	 1062912 B/op	       2 allocs/op
+BenchmarkGenerateKeyPair/6960119pcf-8     	      27	  42887002 ns/op	 1062915 B/op	       2 allocs/op
+BenchmarkGenerateKeyPair/8192128-8        	      18	 100475568 ns/op	 1374213 B/op	       2 allocs/op
+BenchmarkGenerateKeyPair/8192128f-8       	      22	  50191968 ns/op	 1374212 B/op	       2 allocs/op
+BenchmarkGenerateKeyPair/8192128pc-8      	      16	  93846186 ns/op	 1374214 B/op	       2 allocs/op
+BenchmarkGenerateKeyPair/8192128pcf-8     	      21	  51003914 ns/op	 1374212 B/op	       2 allocs/op
+BenchmarkEncapsulate/348864-8             	  147676	      8622 ns/op	     128 B/op	       2 allocs/op
+BenchmarkEncapsulate/348864f-8            	  141252	      8339 ns/op	     128 B/op	       2 allocs/op
+BenchmarkEncapsulate/348864pc-8           	  118848	     10189 ns/op	     160 B/op	       2 allocs/op
+BenchmarkEncapsulate/348864pcf-8          	  114228	     10209 ns/op	     160 B/op	       2 allocs/op
+BenchmarkEncapsulate/460896-8             	   68546	     17685 ns/op	     192 B/op	       2 allocs/op
+BenchmarkEncapsulate/460896f-8            	   66234	     17561 ns/op	     192 B/op	       2 allocs/op
+BenchmarkEncapsulate/460896pc-8           	   60807	     19176 ns/op	     224 B/op	       2 allocs/op
+BenchmarkEncapsulate/460896pcf-8          	   62060	     19186 ns/op	     224 B/op	       2 allocs/op
+BenchmarkEncapsulate/6688128-8            	   43240	     28237 ns/op	     240 B/op	       2 allocs/op
+BenchmarkEncapsulate/6688128f-8           	   43110	     27648 ns/op	     240 B/op	       2 allocs/op
+BenchmarkEncapsulate/6688128pc-8          	   38628	     31316 ns/op	     272 B/op	       2 allocs/op
+BenchmarkEncapsulate/6688128pcf-8         	   38240	     30695 ns/op	     272 B/op	       2 allocs/op
+BenchmarkEncapsulate/6960119-8            	   43016	     27572 ns/op	     240 B/op	       2 allocs/op
+BenchmarkEncapsulate/6960119f-8           	   44558	     27598 ns/op	     240 B/op	       2 allocs/op
+BenchmarkEncapsulate/6960119pc-8          	   38373	     30286 ns/op	     272 B/op	       2 allocs/op
+BenchmarkEncapsulate/6960119pcf-8         	   39642	     30545 ns/op	     272 B/op	       2 allocs/op
+BenchmarkEncapsulate/8192128-8            	   39162	     30688 ns/op	     240 B/op	       2 allocs/op
+BenchmarkEncapsulate/8192128f-8           	   40713	     30256 ns/op	     240 B/op	       2 allocs/op
+BenchmarkEncapsulate/8192128pc-8          	   36350	     32975 ns/op	     272 B/op	       2 allocs/op
+BenchmarkEncapsulate/8192128pcf-8         	   36024	     32996 ns/op	     272 B/op	       2 allocs/op
+BenchmarkDecapsulate/348864-8             	   40624	     29708 ns/op	      32 B/op	       1 allocs/op
+BenchmarkDecapsulate/348864f-8            	   40581	     30115 ns/op	      32 B/op	       1 allocs/op
+BenchmarkDecapsulate/348864pc-8           	   39066	     31645 ns/op	      32 B/op	       1 allocs/op
+BenchmarkDecapsulate/348864pcf-8          	   38629	     31267 ns/op	      32 B/op	       1 allocs/op
+BenchmarkDecapsulate/460896-8             	   19645	     59572 ns/op	      32 B/op	       1 allocs/op
+BenchmarkDecapsulate/460896f-8            	   19862	     60849 ns/op	      32 B/op	       1 allocs/op
+BenchmarkDecapsulate/460896pc-8           	   19555	     61291 ns/op	      32 B/op	       1 allocs/op
+BenchmarkDecapsulate/460896pcf-8          	   19196	     62043 ns/op	      32 B/op	       1 allocs/op
+BenchmarkDecapsulate/6688128-8            	   16971	     71095 ns/op	      32 B/op	       1 allocs/op
+BenchmarkDecapsulate/6688128f-8           	   17301	     71197 ns/op	      32 B/op	       1 allocs/op
+BenchmarkDecapsulate/6688128pc-8          	   16252	     72932 ns/op	      32 B/op	       1 allocs/op
+BenchmarkDecapsulate/6688128pcf-8         	   16180	     74648 ns/op	      32 B/op	       1 allocs/op
+BenchmarkDecapsulate/6960119-8            	   17912	     65572 ns/op	      32 B/op	       1 allocs/op
+BenchmarkDecapsulate/6960119f-8           	   18310	     65439 ns/op	      32 B/op	       1 allocs/op
+BenchmarkDecapsulate/6960119pc-8          	   17192	     68869 ns/op	      32 B/op	       1 allocs/op
+BenchmarkDecapsulate/6960119pcf-8         	   17108	     70091 ns/op	      32 B/op	       1 allocs/op
+BenchmarkDecapsulate/8192128-8            	   16969	     71775 ns/op	      32 B/op	       1 allocs/op
+BenchmarkDecapsulate/8192128f-8           	   17293	     71457 ns/op	      32 B/op	       1 allocs/op
+BenchmarkDecapsulate/8192128pc-8          	   15475	     75567 ns/op	      32 B/op	       1 allocs/op
+BenchmarkDecapsulate/8192128pcf-8         	   15982	     79006 ns/op	      32 B/op	       1 allocs/op
 ```
