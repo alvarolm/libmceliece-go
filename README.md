@@ -2,7 +2,7 @@
 
 Go wrapper for [libmceliece](https://libmceliece.cr.yp.to/) which implements Classic McEliece, a post-quantum key encapsulation mechanism (KEM) thats been around since 1978 and is now a NIST standard.
 
-- prebuilt libraries for amd64 and arm64 included, use ./update_libs.sh to recompile them
+- prebuilt libraries for amd64 included, use ./update_libs.sh (all the bash files are for debian compatible systems) to recompile them
 
 ## Usage
 
