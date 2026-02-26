@@ -1,6 +1,6 @@
 # libmceliece-go
 
-Go wrapper for [libmceliece](https://libmceliece.cr.yp.to/) which implements Classic McEliece, a post-quantum key encapsulation mechanism (KEM) thats been around since 1978 and is now a NIST standard.
+Go wrapper for [libmceliece](https://lib.mceliece.org/) which implements Classic McEliece, a post-quantum key encapsulation mechanism (KEM) thats been around since 1978 and is now a NIST standard.
 
 - prebuilt libraries for `amd64` and `arm64` included; run `./update_libs.sh` to refresh them from Debian packages (requires `curl` and `dpkg-deb`)
 
